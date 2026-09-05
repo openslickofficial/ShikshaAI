@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { GraduationCap, Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
+import logoImg from '../assets/logo.png';
 
 export const AuthPage: React.FC = () => {
   const { signIn, signUp } = useAuth();
@@ -56,8 +57,8 @@ export const AuthPage: React.FC = () => {
       <div className="w-full max-w-md space-y-6">
         {/* Logo & Header Title */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 shadow-lg mb-2">
-            <GraduationCap className="w-8 h-8" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-app-surface border border-app shadow-lg mb-2 p-1.5 overflow-hidden">
+            <img src={logoImg} alt="Shiksha AI Logo" className="w-full h-full object-contain rounded-xl" />
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-app-primary">
             Shiksha AI Platform
