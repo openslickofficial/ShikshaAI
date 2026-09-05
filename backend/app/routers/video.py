@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.deps import get_current_learner
 from app.models.db_models import LearnerProfile
 from app.services.audio_stitcher import stitch_section_audio, NoAudioFoundError
-from app.services.avatar_provider import get_avatar_provider, AvatarError
+from app.services.avatar_provider import get_avatar_provider, AvatarError, MockAvatarProvider
 from app.services.video_budget import reserve_video_budget, record_video_spend, get_video_budget_status, BudgetExceededError
 from app.services.video_composer import compose_section_video
 
@@ -76,7 +76,17 @@ def synthesize_section_video(
     # 3. Avatar Synthesis & Composition
     try:
         provider = get_avatar_provider()
-        avatar_res = provider.synthesize_avatar(stitched["audioPath"], duration)
+        try:
+            avatar_res = provider.synthesize_avatar(stitched["audioPath"], duration)
+        except Exception as prov_err:
+            if not isinstance(provider, MockAvatarProvider):
+                logger.warning(f"Primary avatar provider failed ({prov_err}). Falling back to local video composer...")
+                fallback_prov = MockAvatarProvider()
+                avatar_res = fallback_prov.synthesize_avatar(stitched["audioPath"], duration)
+                is_real_provider = False
+            else:
+                raise
+
         video_url = compose_section_video(request.sectionId, avatar_res["videoBytes"], request.onScreenHeadline)
 
         if is_real_provider:

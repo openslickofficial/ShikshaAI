@@ -8,7 +8,36 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]
+FALLBACK_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-3.5-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.6-flash",
+]
+
+TRANSIENT_ERROR_KEYWORDS = [
+    "503",
+    "unavailable",
+    "high demand",
+    "temporarily",
+    "overloaded",
+    "429",
+    "quota",
+    "rate limit",
+    "rate_limit",
+    "resource_exhausted",
+    "resource exhausted",
+    "404",
+    "not found",
+    "not available",
+    "no longer available",
+    "500",
+    "502",
+    "504",
+    "internal error",
+    "timeout",
+    "deadline",
+]
 
 
 class LLMError(Exception):
@@ -21,7 +50,8 @@ class LLMError(Exception):
 def generate_json_response(prompt: str, system_instruction: str = "") -> dict:
     """
     Invokes Google Gemini with JSON mode enabled and parses the output as a dict.
-    Tries settings.GEMINI_MODEL first, followed by fallbacks if a 404 model error occurs.
+    Tries settings.GEMINI_MODEL first, followed by fallbacks if a transient error
+    (503 High Demand, 429 Rate Limit, 404 Model Migration, Timeout) occurs.
     """
     if not settings.GEMINI_API_KEY:
         logger.warning("GEMINI_API_KEY is missing in backend settings.")
@@ -33,6 +63,7 @@ def generate_json_response(prompt: str, system_instruction: str = "") -> dict:
         logger.error(f"Failed to initialize Gemini client: {e}")
         raise LLMError("Failed to initialize Gemini client.", status_code=500)
 
+    # Ensure prioritized order: configured model first, followed by unique fallbacks
     candidate_models = [settings.GEMINI_MODEL] + [m for m in FALLBACK_MODELS if m != settings.GEMINI_MODEL]
     last_exception = None
 
@@ -69,16 +100,17 @@ def generate_json_response(prompt: str, system_instruction: str = "") -> dict:
             return json.loads(text_content)
 
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse LLM response as JSON from model '{model_name}': {e}")
+            logger.warning(f"Failed to parse LLM response as JSON from model '{model_name}': {e}. Trying fallback model...")
             last_exception = LLMError(f"LLM returned invalid JSON output: {str(e)}")
-            break
+            continue
         except Exception as e:
             err_msg = str(e)
             logger.warning(f"Gemini API error with model '{model_name}': {err_msg}")
             last_exception = LLMError(f"Gemini service error: {err_msg}")
-            # If 404 model not available or 429 rate/quota limit error, try fallback model candidate
-            if any(k in err_msg.lower() for k in ["404", "429", "not found", "not available", "quota", "rate limit"]):
-                time.sleep(3)
+            # If 503 high demand, 429 rate limit, 404 model error, or transient failure, rotate to next candidate model
+            if any(k in err_msg.lower() for k in TRANSIENT_ERROR_KEYWORDS):
+                logger.info(f"Transient error with model '{model_name}'. Rotating to next candidate model...")
+                time.sleep(1.5)
                 continue
             else:
                 break
