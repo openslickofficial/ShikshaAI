@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GraduationCap, Mail, Lock, User, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { GraduationCap, Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
 
@@ -10,11 +10,13 @@ export const AuthPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     if (!email || !email.trim()) {
       setErrorMsg('Please enter a valid email address.');
@@ -28,9 +30,13 @@ export const AuthPage: React.FC = () => {
     setSubmitting(true);
     try {
       if (isSignUp) {
-        const { error } = await signUp(email.trim(), password, displayName.trim());
+        const { data, error } = await signUp(email.trim(), password, displayName.trim());
         if (error) {
           setErrorMsg(error.message || 'Failed to create account.');
+        } else if (data?.user && !data?.session) {
+          setSuccessMsg(
+            `Account created! A confirmation email has been sent to ${email}. Please check your inbox and click the verification link to log in.`
+          );
         }
       } else {
         const { error } = await signIn(email.trim(), password);
@@ -87,6 +93,13 @@ export const AuthPage: React.FC = () => {
             <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-semibold flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
+            </div>
+          )}
+
+          {successMsg && (
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-start gap-2.5">
+              <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{successMsg}</span>
             </div>
           )}
 
@@ -170,6 +183,7 @@ export const AuthPage: React.FC = () => {
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setErrorMsg(null);
+                setSuccessMsg(null);
               }}
               className="text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors cursor-pointer"
             >
