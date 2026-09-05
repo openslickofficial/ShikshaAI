@@ -1,0 +1,2 @@
+# Local STT dependencies (Whisper). Install alongside requirements.txt for STT_PROVIDER=whisper.
+openai-whisper>=20231117

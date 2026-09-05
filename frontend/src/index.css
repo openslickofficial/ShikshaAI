@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sidebar: var(--sidebar);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-danger-text: var(--danger-text);
+
+  --color-card-coral: var(--card-coral);
+  --color-card-coral-text: var(--card-coral-text);
+  --color-card-sand: var(--card-sand);
+  --color-card-sand-text: var(--card-sand-text);
+  --color-card-lavender: var(--card-lavender);
+  --color-card-lavender-text: var(--card-lavender-text);
+  --color-card-mint: var(--card-mint);
+  --color-card-mint-text: var(--card-mint-text);
+}
+
+:root {
+  --bg: #F8FAF8;
+  --surface: #FFFFFF;
+  --sidebar: #111827;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --border: #E2E8F0;
+  --accent: #F59E0B;
+  --danger: #FEE2E2;
+  --danger-text: #991B1B;
+
+  --card-coral: #FEE2E2;
+  --card-coral-text: #991B1B;
+  --card-sand: #FEF3C7;
+  --card-sand-text: #92400E;
+  --card-lavender: #F3E8FF;
+  --card-lavender-text: #6B21A8;
+  --card-mint: #D1FAE5;
+  --card-mint-text: #065F46;
+}
+
+html.dark {
+  --bg: #0E1412 !important;
+  --surface: #18221F !important;
+  --sidebar: #090D0C !important;
+  --text-primary: #F8FAFC !important;
+  --text-secondary: #94A3B8 !important;
+  --border: #2A3833 !important;
+  --accent: #FBBF24 !important;
+  --danger: #450A0A !important;
+  --danger-text: #FCA5A5 !important;
+
+  --card-coral: #3B1A1E !important;
+  --card-coral-text: #FECACA !important;
+  --card-sand: #382914 !important;
+  --card-sand-text: #FDE68A !important;
+  --card-lavender: #2A1B38 !important;
+  --card-lavender-text: #E9D5FF !important;
+  --card-mint: #143326 !important;
+  --card-mint-text: #A7F3D0 !important;
+}
+
+/* Custom Base Styles */
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Token Utility Helpers */
+.bg-app-bg { background-color: var(--bg) !important; }
+.bg-app-surface { background-color: var(--surface) !important; }
+.bg-app-sidebar { background-color: var(--sidebar) !important; }
+.text-app-primary { color: var(--text-primary) !important; }
+.text-app-secondary { color: var(--text-secondary) !important; }
+.border-app { border-color: var(--border) !important; }
+.text-accent-amber { color: var(--accent) !important; }
+.bg-accent-amber { background-color: var(--accent) !important; }
+
+.bg-app-danger { background-color: var(--danger) !important; }
+.text-app-danger { color: var(--danger-text) !important; }
+
+/* Pastel Card Hues */
+.bg-card-coral { background-color: var(--card-coral) !important; }
+.text-card-coral { color: var(--card-coral-text) !important; }
+
+.bg-card-sand { background-color: var(--card-sand) !important; }
+.text-card-sand { color: var(--card-sand-text) !important; }
+
+.bg-card-lavender { background-color: var(--card-lavender) !important; }
+.text-card-lavender { color: var(--card-lavender-text) !important; }
+
+.bg-card-mint { background-color: var(--card-mint) !important; }
+.text-card-mint { color: var(--card-mint-text) !important; }
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.7);
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox Scrollbar Support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+html.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(251, 191, 36, 0.8);
+  border: 1px solid transparent;
+  background-clip: content-box;
+}

@@ -1,0 +1,21 @@
+# Core backend dependencies (for production & free-tier deployment).
+# For local Whisper STT support, install requirements-local-stt.txt in addition to this file.
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic-settings>=2.2.0
+google-generativeai>=0.4.0
+python-dotenv>=1.0.0
+pdfplumber>=0.10.0
+python-docx>=1.1.0
+python-pptx>=0.6.23
+chromadb>=0.4.24
+sentence-transformers>=2.5.0
+python-multipart>=0.0.9
+requests>=2.31.0
+mutagen>=1.47.0
+imageio-ffmpeg>=0.4.9
+sqlmodel>=0.0.16
+psycopg2-binary>=2.9.9
+upstash-redis>=1.0.0
+upstash-ratelimit>=1.0.0
+pyjwt[crypto]>=2.8.0
