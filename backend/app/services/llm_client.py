@@ -1,18 +1,14 @@
 import json
 import logging
 import time
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]
-
-
-
-
-
 
 
 class LLMError(Exception):
@@ -31,26 +27,32 @@ def generate_json_response(prompt: str, system_instruction: str = "") -> dict:
         logger.warning("GEMINI_API_KEY is missing in backend settings.")
         raise LLMError("GEMINI_API_KEY is not configured on the server.", status_code=500)
 
-    genai.configure(api_key=settings.GEMINI_API_KEY)
+    try:
+        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    except Exception as e:
+        logger.error(f"Failed to initialize Gemini client: {e}")
+        raise LLMError("Failed to initialize Gemini client.", status_code=500)
 
     candidate_models = [settings.GEMINI_MODEL] + [m for m in FALLBACK_MODELS if m != settings.GEMINI_MODEL]
     last_exception = None
 
     for model_name in candidate_models:
-        model_kwargs = {
-            "model_name": model_name,
-            "generation_config": {
-                "response_mime_type": "application/json",
-                "temperature": 0.3,
-            }
+        config_kwargs = {
+            "response_mime_type": "application/json",
+            "temperature": 0.3,
         }
         if system_instruction:
-            model_kwargs["system_instruction"] = system_instruction
+            config_kwargs["system_instruction"] = system_instruction
+
+        config = types.GenerateContentConfig(**config_kwargs)
 
         try:
             logger.info(f"Invoking Gemini model '{model_name}'...")
-            model = genai.GenerativeModel(**model_kwargs)
-            response = model.generate_content(prompt)
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=config
+            )
             
             if not response or not response.text:
                 raise LLMError("Empty response returned by LLM model.")
@@ -78,10 +80,8 @@ def generate_json_response(prompt: str, system_instruction: str = "") -> dict:
             if any(k in err_msg.lower() for k in ["404", "429", "not found", "not available", "quota", "rate limit"]):
                 time.sleep(3)
                 continue
-
             else:
                 break
-
 
     if last_exception:
         raise last_exception

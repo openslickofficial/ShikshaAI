@@ -72,7 +72,7 @@ Every model identifier in the platform is verified directly against active confi
 - **Auxiliary TTS**: `eleven_multilingual_v2` (`settings.ELEVENLABS_MODEL` in `app/core/config.py` via ElevenLabs API).
 - **Avatar Video Synthesis**: D-ID Presenter Video Engine (`/talks` API in `app/services/avatar_provider.py`).
 - **Local Video Fallback**: H.264 video rendering with animated audio waveform overlay via FFmpeg (`imageio-ffmpeg`).
-- **Embeddings**: `paraphrase-multilingual-MiniLM-L12-v2` (`MODEL_NAME` in `app/services/embeddings.py` via `sentence-transformers`).
+- **Embeddings**: `gemini-embedding-001` (768-dimensional dense vectors via Google Gemini hosted embedding API).
 - **Speech-to-Text (STT)**: `base` PyTorch model (`settings.WHISPER_MODEL` in `app/core/config.py` via `openai-whisper`), with `MockSTTProvider` as the zero-dependency default.
 
 ---
@@ -80,7 +80,7 @@ Every model identifier in the platform is verified directly against active confi
 ## 6. RAG Implementation
 - **File Parsing**: In-memory parsing using `pdfplumber` for PDF pages, `python-docx` for Word documents, and `python-pptx` for PowerPoint slide decks (`app/services/document_parser.py`).
 - **Chunking Strategy**: Fixed-character sliding window of `600` characters (`TARGET_CHUNK_SIZE = 600`) with a `100`-character overlap (`CHUNK_OVERLAP = 100`) in `app/services/chunker.py`. Chunks attempt to break at sentence periods or newlines within a 150-character boundary zone.
-- **Embedding Generation**: Local embedding via `SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")`, emitting dense 384-dimensional vectors.
+- **Embedding Generation**: Hosted batch embedding via Google Gemini API (`gemini-embedding-001`, 768 dimensions), fully eliminating local PyTorch inference to prevent free-tier OOM crashes on Render.
 - **Vector Storage**: Local persistent ChromaDB instance (`chromadb.PersistentClient`) storing document chunks and vectors under `backend/data/chroma`.
 - **Query & Sampling**: When additional query notes are provided, retrieval uses cosine similarity (`query_similar`, top-6 chunks). When no notes are provided, retrieval evenly samples 6 chunks across the document index (`sample_spread`).
 - **Learner Isolation**: Document chunks in ChromaDB and ephemeral stores are tagged with `learnerId`, preventing cross-learner document leakage.

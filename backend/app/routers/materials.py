@@ -6,7 +6,7 @@ from app.models.db_models import LearnerProfile
 from app.schemas.material import MaterialUploadResponse
 from app.services.document_parser import extract_text, ParsingError
 from app.services.chunker import chunk_blocks
-from app.services.embeddings import embed
+from app.services.embeddings import embed, EmbeddingError
 from app.services.vector_store import add_material
 from app.services.material_store import record_material_meta
 from app.services.rate_limiter import check_rate_limit
@@ -84,6 +84,12 @@ async def upload_material(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=pe.message
+        )
+    except EmbeddingError as ee:
+        logger.error(f"Embedding error for file '{filename}': {ee.message}")
+        raise HTTPException(
+            status_code=ee.status_code,
+            detail=ee.message
         )
     except HTTPException:
         raise

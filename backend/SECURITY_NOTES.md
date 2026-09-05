@@ -39,14 +39,14 @@
 
 ### 1. Complete Dependency Manifest Sweep
 Audited all dependencies across `backend/requirements.txt`, `backend/requirements-local-stt.txt`, and `frontend/package.json`:
-- **Python Backend**: `fastapi`, `uvicorn`, `pydantic-settings`, `google-generativeai`, `python-dotenv`, `pdfplumber`, `python-docx`, `python-pptx`, `chromadb`, `sentence-transformers`, `python-multipart`, `requests`, `mutagen`, `imageio-ffmpeg`, `sqlmodel`, `psycopg2-binary`, `upstash-redis`, `upstash-ratelimit`, `pyjwt[crypto]`, `openai-whisper`, `torch`.
+- **Python Backend**: `fastapi`, `uvicorn`, `pydantic-settings`, `google-genai`, `python-dotenv`, `pdfplumber`, `python-docx`, `python-pptx`, `chromadb`, `python-multipart`, `requests`, `mutagen`, `imageio-ffmpeg`, `sqlmodel`, `psycopg2-binary`, `upstash-redis`, `upstash-ratelimit`, `pyjwt[crypto]`, `openai-whisper` (optional local STT only), `torch` (optional local STT only).
 - **Node Frontend**: `@supabase/supabase-js`, `react`, `react-dom`, `react-router-dom`, `recharts`, `mermaid`, `katex`, `react-katex`, `lucide-react`, `tailwindcss`, `vite`.
 
 ### 2. Comprehensive Required Secrets Inventory
 
 | Variable Name | Consumer Service | Scope | Gitignore Enforced | Status in Code |
 |---|---|---|:---:|:---:|
-| `GEMINI_API_KEY` | Google Generative AI (`app/services/llm_client.py`) | Core LLM (structured plans, content, checkpoints, remediation) | Yes (`.env`) | Zero hardcoded instances |
+| `GEMINI_API_KEY` | Google GenAI (`app/services/llm_client.py`, `app/services/embeddings.py`) | Core LLM generation & hosted RAG embeddings (`gemini-embedding-001`) | Yes (`.env`) | Zero hardcoded instances |
 | `GROQ_API_KEY` | Groq Cloud LPU (`app/services/groq_client.py`) | Creative analogy generation ensemble | Yes (`.env`) | Zero hardcoded instances |
 | `SARVAM_API_KEY` | Sarvam AI (`app/services/tts_provider.py`) | Indian language TTS audio synthesis (`bulbul:v3`) | Yes (`.env`) | Zero hardcoded instances |
 | `ELEVENLABS_API_KEY` | ElevenLabs (`app/services/tts_provider.py`) | Secondary/Auxiliary TTS provider | Yes (`.env`) | Zero hardcoded instances |

@@ -7,6 +7,13 @@ from app.services.embeddings import embed
 
 logger = logging.getLogger(__name__)
 
+# Note on Embedding Compatibility & Ephemeral Storage:
+# Any previously-embedded chunks in a local Chroma store used the old 384-dimensional
+# 'paraphrase-multilingual-MiniLM-L12-v2' vector space and are incompatible with new
+# 768-dimensional Gemini embeddings. Because Chroma's storage lives on Render's
+# ephemeral disk (wiped on every redeploy per existing documented design), production
+# deployments automatically initialize a fresh, consistent 768-dimensional vector index.
+# No code path assumes old embeddings survive redeployments.
 # Persistent Chroma Client at backend/data/chroma
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "chroma")
 os.makedirs(DATA_DIR, exist_ok=True)
